@@ -1688,6 +1688,7 @@ dependencies = [
  "srml-timestamp 0.1.0",
  "srml-treasury 0.1.0",
  "srml-upgrade-key 0.1.0",
+ "substrate-client 0.1.0",
  "substrate-keyring 0.1.0",
  "substrate-primitives 0.1.0",
 ]
@@ -3296,6 +3297,7 @@ dependencies = [
  "substrate-executor 0.1.0",
  "substrate-keyring 0.1.0",
  "substrate-primitives 0.1.0",
+ "substrate-state-machine 0.1.0",
  "substrate-test-runtime 0.1.0",
 ]
 
@@ -3315,6 +3317,7 @@ dependencies = [
  "sr-std 0.1.0",
  "sr-version 0.1.0",
  "srml-support 0.1.0",
+ "substrate-client 0.1.0",
  "substrate-keyring 0.1.0",
  "substrate-primitives 0.1.0",
 ]

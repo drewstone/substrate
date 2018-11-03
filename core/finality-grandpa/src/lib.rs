@@ -43,7 +43,7 @@ extern crate substrate_keyring as keyring;
 use futures::prelude::*;
 use futures::stream::Fuse;
 use futures::sync::mpsc;
-use client::{Client, ImportNotifications, backend::Backend, CallExecutor};
+use client::{Client, ImportNotifications, backend::Backend, CallExecutor, blockchain::HeaderBackend};
 use codec::{Encode, Decode};
 use runtime_primitives::traits::{As, NumberFor, Block as BlockT, Header as HeaderT};
 use runtime_primitives::generic::BlockId;
@@ -123,9 +123,10 @@ pub trait BlockStatus<Block: BlockT> {
 	fn block_number(&self, hash: Block::Hash) -> Result<Option<u32>, Error>;
 }
 
-impl<B, E, Block: BlockT> BlockStatus<Block> for Arc<Client<B, E, Block>> where
+impl<B, E, Block: BlockT, RA> BlockStatus<Block> for Arc<Client<B, E, Block, RA>> where
 	B: Backend<Block, Blake2Hasher>,
-	E: CallExecutor<Block, Blake2Hasher>,
+	E: CallExecutor<Block, Blake2Hasher> + Send + Sync,
+	RA: Send + Sync,
 	NumberFor<Block>: As<u32>,
 {
 	fn block_number(&self, hash: Block::Hash) -> Result<Option<u32>, Error> {
@@ -378,14 +379,14 @@ fn outgoing_messages<Block: BlockT, N: Network>(
 }
 
 /// The environment we run GRANDPA in.
-pub struct Environment<B, E, Block: BlockT, N: Network> {
-	inner: Arc<Client<B, E, Block>>,
+pub struct Environment<B, E, Block: BlockT, N: Network, RA> {
+	inner: Arc<Client<B, E, Block, RA>>,
 	voters: HashMap<AuthorityId, usize>,
 	config: Config,
 	network: N,
 }
 
-impl<Block: BlockT, B, E, N> grandpa::Chain<Block::Hash> for Environment<B, E, Block, N> where
+impl<Block: BlockT, B, E, N, RA> grandpa::Chain<Block::Hash> for Environment<B, E, Block, N, RA> where
 	Block: 'static,
 	B: Backend<Block, Blake2Hasher> + 'static,
 	E: CallExecutor<Block, Blake2Hasher> + 'static,
@@ -436,12 +437,13 @@ impl<Block: BlockT, B, E, N> grandpa::Chain<Block::Hash> for Environment<B, E, B
 	}
 }
 
-impl<B, E, Block: BlockT, N> voter::Environment<Block::Hash> for Environment<B, E, Block, N> where
+impl<B, E, Block: BlockT, N, RA> voter::Environment<Block::Hash> for Environment<B, E, Block, N, RA> where
 	Block: 'static,
 	B: Backend<Block, Blake2Hasher> + 'static,
-	E: CallExecutor<Block, Blake2Hasher> + 'static,
+	E: CallExecutor<Block, Blake2Hasher> + 'static + Send + Sync,
 	N: Network + 'static,
 	N::In: 'static,
+	RA: 'static + Send + Sync,
 	NumberFor<Block>: As<u32>,
 {
 	type Timer = Box<Future<Item = (), Error = Self::Error>>;
@@ -545,9 +547,9 @@ impl<B, E, Block: BlockT, N> voter::Environment<Block::Hash> for Environment<B, 
 }
 
 /// Run a GRANDPA voter as a task. The returned future should be executed in a tokio runtime.
-pub fn run_grandpa<B, E, Block: BlockT, N>(
+pub fn run_grandpa<B, E: Send + Sync, Block: BlockT, N, RA: Send + Sync + 'static>(
 	config: Config,
-	client: Arc<Client<B, E, Block>>,
+	client: Arc<Client<B, E, Block, RA>>,
 	voters: HashMap<AuthorityId, usize>,
 	network: N,
 ) -> Result<impl Future<Item=(),Error=()>,client::error::Error> where

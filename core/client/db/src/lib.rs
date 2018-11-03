@@ -97,13 +97,13 @@ pub struct DatabaseSettings {
 }
 
 /// Create an instance of db-backed client.
-pub fn new_client<E, S, Block>(
+pub fn new_client<E, S, Block, RA>(
 	settings: DatabaseSettings,
 	executor: E,
 	genesis_storage: S,
 	block_execution_strategy: ExecutionStrategy,
 	api_execution_strategy: ExecutionStrategy,
-) -> Result<client::Client<Backend<Block>, client::LocalCallExecutor<Backend<Block>, E>, Block>, client::error::Error>
+) -> Result<client::Client<Backend<Block>, client::LocalCallExecutor<Backend<Block>, E>, Block, RA>, client::error::Error>
 	where
 		Block: BlockT,
 		E: CodeExecutor<Blake2Hasher> + RuntimeInfo,
