@@ -39,6 +39,9 @@ members = [
 	"core/sr-version",
 	"core/transaction-pool",
 	"core/transaction-pool/graph",
+
+	"srml/identity",
+
 	"srml/support",
 	"srml/assets",
 	"srml/balances",
