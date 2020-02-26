@@ -40,7 +40,7 @@ pub fn config_endowed(
 	extra_endowed: Vec<AccountId>,
 ) -> GenesisConfig {
 
-	let mut endowed = vec![
+	let endowed = vec![
 		(alice(), 111 * DOLLARS),
 		(bob(), 100 * DOLLARS),
 		(charlie(), 100_000_000 * DOLLARS),
