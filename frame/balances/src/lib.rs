@@ -369,7 +369,7 @@ decl_storage! {
 		/// True if network has been upgraded to this version.
 		///
 		/// True for new networks.
-		IsUpgraded build(|_: &GenesisConfig<T, I>| true): bool;
+		IsUpgraded build(|_: &GenesisConfig<T, I>| false): bool;
 	}
 	add_extra_genesis {
 		config(balances): Vec<(T::AccountId, T::Balance)>;
