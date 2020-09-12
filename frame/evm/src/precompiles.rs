@@ -269,7 +269,7 @@ impl Precompile for Ed25519Verify {
 	}
 }
 
-/// The identity precompile.
+/// The Blake2F precompile.
 pub struct Blake2F;
 
 impl Precompile for Blake2F {
@@ -312,6 +312,7 @@ pub struct Bn128Mul;
 /// The Bn128Pairing builtin
 pub struct Bn128Pairing;
 
+/// The bn128 addition arithmetic precompile.
 impl Precompile for Bn128Add {
 	fn execute(
 		input: &[u8],
@@ -335,6 +336,7 @@ impl Precompile for Bn128Add {
 	}
 }
 
+/// The bn128 multiplication arithmetic precompile.
 impl Precompile for Bn128Mul {
 	fn execute(
 		input: &[u8],
@@ -358,6 +360,7 @@ impl Precompile for Bn128Mul {
 	}
 }
 
+/// The bn128 pairing precompile.
 impl Precompile for Bn128Pairing {
 	fn execute(
 		input: &[u8],
